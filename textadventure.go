@@ -2,7 +2,7 @@ package main
 
 // Create NPC
 // NPC Move around map
-// items can be picked up and place
+// wepons can be picked up
 import (
 	"bufio"
 	"fmt"
@@ -56,6 +56,7 @@ func (node *storyNode) executeCmd(cmd string) *storyNode {
 	currentChoice := node.choices
 	for currentChoice != nil {
 		if strings.ToLower(currentChoice.cmd) == strings.ToLower(cmd) {
+			// Once user makes a command the wepon is picked up
 			node.addWepon(currentChoice.weapon)
 			return currentChoice.nextNode
 		}
@@ -86,16 +87,17 @@ func main() {
 	scanner = bufio.NewScanner(os.Stdin)
 	weapon1 := weapon{"OmeBreaker", "sword", 3200}
 	weapon2 := weapon{"World Destroyer", "axe", 48000}
-	// weapon3 := weapon{"friend maker", "bow", 3}
+	weapon3 := weapon{"friend maker", "bow", 3}
 
 	fmt.Println("Started")
 	start := storyNode{text: `
 	Deep in the abyss you wake. Its dark and forgin. Slowly you stand up, shaking, there is only one way to go and that is deeper into the void`}
 	stay := storyNode{text: "Scared and afraid you stay put, paralized by the fear of the unknown you just stare into the abyss, and you wait"}
 	walkIntoAbyss := storyNode{text: `Slowly you walk into the darkness. The further you go, a thic wave a cold encompasses your body. Decide left or right `}
-
+	right := storyNode{text: `You choose to go right and you suddenly wake up`}
 	start.addChoice("Stay", "Stay put", &stay, &weapon1)
 	start.addChoice("Go", "Walking forward", &walkIntoAbyss, &weapon2)
+	walkIntoAbyss.addChoice("right", "Walking roght", &right, &weapon3)
 
 	start.play()
 	fmt.Println()
