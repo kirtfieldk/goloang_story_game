@@ -34,7 +34,10 @@ type choices struct {
 type storyNode struct {
 	text    string
 	choices *choices
-	weapon  *weapon
+}
+type player struct {
+	weapon *weapon
+	name   string
 }
 
 func (node *storyNode) addChoice(cmd string, desc string, nextNode *storyNode, weapon *weapon, monster *monster) {
@@ -50,7 +53,7 @@ func (node *storyNode) addChoice(cmd string, desc string, nextNode *storyNode, w
 		currentChoice.nextChoice = choice
 	}
 }
-func (node *storyNode) addWepon(indiWeapon *weapon) {
+func (node *player) addWepon(indiWeapon *weapon) {
 	if node.weapon == nil {
 		node.weapon = indiWeapon
 	} else {
@@ -61,12 +64,12 @@ func (node *storyNode) addWepon(indiWeapon *weapon) {
 		}
 	}
 }
-func (node *storyNode) executeCmd(cmd string) *storyNode {
+func (node *storyNode) executeCmd(cmd string, player *player) *storyNode {
 	currentChoice := node.choices
 	for currentChoice != nil {
 		if strings.ToLower(currentChoice.cmd) == strings.ToLower(cmd) {
 			// Once user makes a command the wepon is picked up
-			node.addWepon(currentChoice.weapon)
+			player.addWepon(currentChoice.weapon)
 			if getRan() {
 				fmt.Printf("\nENEMY ENCOUNTER WITH: %v\n", currentChoice.monster.name)
 			}
@@ -88,11 +91,11 @@ func getRan() bool {
 
 var scanner *bufio.Scanner
 
-func (node *storyNode) play() {
+func (node *storyNode) play(player *player) {
 	node.render()
 	if node.choices != nil {
 		scanner.Scan()
-		node.executeCmd(scanner.Text()).play()
+		node.executeCmd(scanner.Text(), player).play(player)
 	}
 }
 func (node *storyNode) render() {
@@ -105,6 +108,7 @@ func (node *storyNode) render() {
 }
 func main() {
 	scanner = bufio.NewScanner(os.Stdin)
+	player := player{name: "Keith Kirtfield"}
 	// Wepons
 	weapon1 := weapon{"OmeBreaker", "sword", 3200, "fire"}
 	weapon2 := weapon{"World Destroyer", "axe", 48000, "water"}
@@ -124,8 +128,8 @@ func main() {
 	start.addChoice("Go", "Walking forward", &walkIntoAbyss, &weapon2, &odin)
 	walkIntoAbyss.addChoice("right", "Walking roght", &right, &weapon3, &alexander)
 
-	start.play()
+	start.play(&player)
 	fmt.Println()
-	fmt.Println(start.weapon.name)
+	fmt.Println(player.weapon.name)
 	fmt.Println("The End")
 }
